@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Cotizador Galvanizados — Aceros Turia</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --azul:#0D2A5C;--azul-m:#1a3d7c;--azul-c:#1e4fa3;
+  --amarillo:#F5C400;--blanco:#FFFFFF;
+  --gris-bg:#F4F6FA;--gris-b:#DDE3EE;--gris-t:#6B7A99;
+  --texto:#1a2540;--sombra:0 2px 16px rgba(13,42,92,0.10);
+  --r:10px;--rl:16px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Barlow',sans-serif;background:var(--gris-bg);color:var(--texto);min-height:100vh}
+.header{background:var(--azul);position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,0.25)}
+.header-inner{max-width:700px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:14px 20px}
+.logo-badge{background:var(--amarillo);color:var(--azul);font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:18px;padding:6px 14px;border-radius:6px;letter-spacing:0.5px}
+.logo-sub{color:rgba(255,255,255,0.65);font-size:11px;font-weight:500;letter-spacing:1px;text-transform:uppercase;margin-top:3px}
+.header-title{color:var(--blanco);font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:20px;letter-spacing:0.5px;text-align:right}
+.screen{display:none;max-width:700px;margin:0 auto;padding:20px 16px}
+.screen.active{display:block}
+.welcome{text-align:center;padding:24px 0 18px}
+.welcome h2{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:700;color:var(--azul)}
+.welcome p{color:var(--gris-t);font-size:14px;margin-top:6px}
+.family-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:20px}
+.fc{background:var(--blanco);border:1.5px solid var(--gris-b);border-radius:var(--rl);padding:22px 10px 18px;cursor:pointer;text-align:center;transition:all 0.18s;box-shadow:var(--sombra)}
+.fc:hover{border-color:var(--azul-c);transform:translateY(-2px);box-shadow:0 6px 24px rgba(13,42,92,0.14)}
+.fi{font-size:30px;margin-bottom:8px}
+.fc h3{font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;color:var(--azul)}
+.fc p{font-size:11px;color:var(--gris-t);margin-top:3px}
+.fc .ab{height:3px;background:var(--amarillo);border-radius:2px;margin:8px auto 0;width:28px;transition:width 0.18s}
+.fc:hover .ab{width:44px}
+.admin-wrap{text-align:center;padding-bottom:6px}
+.admin-btn{background:none;border:1.5px solid var(--gris-b);border-radius:8px;padding:7px 18px;font-size:12px;color:var(--gris-t);cursor:pointer;font-family:'Barlow',sans-serif;transition:all 0.15s}
+.admin-btn:hover{border-color:var(--azul);color:var(--azul);background:#f0f4ff}
+.back-bar{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.back-btn{background:none;border:1.5px solid var(--gris-b);border-radius:8px;padding:6px 14px;font-size:12px;color:var(--azul);cursor:pointer;font-family:'Barlow',sans-serif;font-weight:600;transition:all 0.15s}
+.back-btn:hover{background:var(--azul);color:var(--blanco);border-color:var(--azul)}
+.stitle{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;color:var(--azul)}
+.slabel{font-size:10px;font-weight:700;color:var(--gris-t);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:7px;margin-top:16px}
+.slabel:first-child{margin-top:0}
+.seg{display:flex;background:var(--gris-bg);border:1.5px solid var(--gris-b);border-radius:8px;overflow:hidden;margin-bottom:14px}
+.sb{flex:1;padding:8px 4px;border:none;background:none;font-size:13px;cursor:pointer;color:var(--gris-t);font-family:'Barlow',sans-serif;font-weight:500;transition:all 0.15s;border-right:1px solid var(--gris-b)}
+.sb:last-child{border-right:none}
+.sb.active{background:var(--azul);color:var(--blanco);font-weight:600}
+.ref-item{display:flex;align-items:center;justify-content:space-between;background:var(--blanco);border:1.5px solid var(--gris-b);border-radius:var(--r);padding:12px 14px;margin-bottom:8px;cursor:pointer;transition:all 0.15s;box-shadow:var(--sombra)}
+.ref-item:hover{border-color:var(--azul-c);background:#f5f8ff}
+.rn{font-size:13px;font-weight:600;color:var(--azul)}
+.rs{font-size:11px;color:var(--gris-t);margin-top:2px}
+.rarrow{color:var(--amarillo);font-size:20px;font-weight:700}
+.prod-card{background:var(--azul);border-radius:var(--r);padding:14px 16px;margin-bottom:14px;border-left:4px solid var(--amarillo)}
+.prod-card h3{font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700;color:var(--blanco)}
+.prod-card p{font-size:12px;color:rgba(255,255,255,0.60);margin-top:3px}
+.ipair{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:start;margin-bottom:14px}
+.orsep{font-size:11px;color:var(--gris-t);font-weight:700;text-align:center;padding-top:22px}
+.fi-wrap label{display:block;font-size:10px;font-weight:700;color:var(--azul);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:4px}
+.fi-wrap input,.fi-wrap select{width:100%;padding:10px 11px;border:1.5px solid var(--gris-b);border-radius:8px;font-size:15px;font-weight:600;background:var(--blanco);color:var(--texto);font-family:'Barlow',sans-serif;transition:border-color 0.15s}
+.fi-wrap input:focus,.fi-wrap select:focus{outline:none;border-color:var(--azul-c);box-shadow:0 0 0 3px rgba(30,79,163,0.09)}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.divider{height:1px;background:var(--gris-b);margin:14px 0}
+.rmain{background:var(--azul);border-radius:var(--rl);padding:20px;margin-bottom:12px;text-align:center;border-bottom:4px solid var(--amarillo)}
+.rmain .rlbl{font-size:11px;color:rgba(255,255,255,0.60);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px;font-weight:600}
+.rmain .rval{font-family:'Barlow Condensed',sans-serif;font-size:36px;font-weight:700;color:var(--amarillo)}
+.rmain .runt{font-size:11px;color:rgba(255,255,255,0.50);margin-top:3px}
+.rgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.rc{background:var(--blanco);border:1.5px solid var(--gris-b);border-radius:var(--r);padding:12px 13px;box-shadow:var(--sombra)}
+.rc .rl{font-size:10px;font-weight:700;color:var(--gris-t);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:3px}
+.rc .rv{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;color:var(--azul)}
+.rc .ru{font-size:10px;color:var(--gris-t);margin-top:2px}
+.rc.wide{grid-column:1/-1}
+.bdown{background:var(--blanco);border:1.5px solid var(--gris-b);border-radius:var(--r);padding:13px 15px;box-shadow:var(--sombra)}
+.btitle{font-size:10px;font-weight:700;color:var(--azul);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:9px}
+.brow{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--gris-b);font-size:12px;color:var(--gris-t)}
+.brow:last-child{border-bottom:none;font-weight:700;color:var(--azul);font-size:13px;padding-top:7px}
+.brow span:last-child{color:var(--texto);font-weight:600}
+.brow:last-child span:last-child{color:var(--azul)}
+.pw-card{background:var(--blanco);border:1.5px solid var(--gris-b);border-radius:var(--rl);padding:28px 24px;text-align:center;max-width:360px;margin:0 auto;box-shadow:var(--sombra)}
+.pw-card h3{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;color:var(--azul);margin-bottom:6px}
+.pw-card p{font-size:13px;color:var(--gris-t);margin-bottom:16px}
+.pw-card input{width:100%;padding:10px 12px;border:1.5px solid var(--gris-b);border-radius:8px;font-size:14px;font-family:'Barlow',sans-serif;margin-bottom:10px;background:var(--gris-bg)}
+.pw-card input:focus{outline:none;border-color:var(--azul-c)}
+.btn-primary{width:100%;padding:11px;background:var(--azul);color:var(--blanco);border:none;border-radius:8px;font-size:14px;font-weight:700;font-family:'Barlow',sans-serif;cursor:pointer;transition:background 0.15s}
+.btn-primary:hover{background:var(--azul-c)}
+.pw-error{color:#c0392b;font-size:12px;margin-top:6px}
+.fsec{margin-bottom:20px}
+.fsec-title{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;color:var(--azul);text-transform:uppercase;padding-bottom:7px;border-bottom:2px solid var(--amarillo);margin-bottom:10px}
+.prow{display:flex;align-items:center;justify-content:space-between;background:var(--blanco);border:1.5px solid var(--gris-b);border-radius:var(--r);padding:10px 12px;margin-bottom:6px;box-shadow:var(--sombra)}
+.prow-name{font-size:13px;font-weight:600;color:var(--azul)}
+.prow-sub{font-size:11px;color:var(--gris-t);margin-top:1px}
+.prow-acts{display:flex;gap:6px;flex-shrink:0;margin-left:8px}
+.btn-edit{background:none;border:1.5px solid var(--gris-b);border-radius:6px;padding:4px 10px;font-size:11px;font-weight:600;color:var(--azul);cursor:pointer;font-family:'Barlow',sans-serif;transition:all 0.15s}
+.btn-edit:hover{background:var(--azul);color:var(--blanco);border-color:var(--azul)}
+.btn-del{background:none;border:1.5px solid #f5c6c6;border-radius:6px;padding:4px 10px;font-size:11px;font-weight:600;color:#c0392b;cursor:pointer;font-family:'Barlow',sans-serif;transition:all 0.15s}
+.btn-del:hover{background:#c0392b;color:var(--blanco);border-color:#c0392b}
+.add-btn{display:block;width:100%;padding:10px;border:1.5px dashed var(--gris-b);border-radius:var(--r);background:none;font-size:13px;font-weight:600;color:var(--gris-t);cursor:pointer;font-family:'Barlow',sans-serif;transition:all 0.15s;margin-top:6px;text-align:center}
+.add-btn:hover{border-color:var(--azul);color:var(--azul);background:#f0f4ff}
+.eform{background:#f0f4ff;border:1.5px solid var(--gris-b);border-radius:var(--r);padding:13px;margin-top:6px}
+.eform h4{font-size:13px;font-weight:700;color:var(--azul);margin-bottom:9px}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:7px}
+.fg.full{grid-template-columns:1fr}
+.fg label{font-size:10px;font-weight:700;color:var(--gris-t);text-transform:uppercase;letter-spacing:0.8px;display:block;margin-bottom:3px}
+.fg input,.fg select{width:100%;padding:7px 9px;border:1.5px solid var(--gris-b);border-radius:6px;font-size:12px;font-family:'Barlow',sans-serif;background:var(--blanco);color:var(--texto)}
+.fg input:focus,.fg select:focus{outline:none;border-color:var(--azul-c)}
+.fa{display:flex;gap:8px;margin-top:9px}
+.fa button{flex:1;padding:8px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Barlow',sans-serif;transition:all 0.15s}
+.btn-save{background:var(--azul);border:none;color:var(--blanco)}
+.btn-save:hover{background:var(--azul-c)}
+.btn-cancel{background:none;border:1.5px solid var(--gris-b);color:var(--gris-t)}
+.btn-cancel:hover{border-color:var(--azul);color:var(--azul)}
+.anote{font-size:12px;color:var(--gris-t);background:var(--gris-bg);border-radius:8px;padding:10px 12px;border-left:3px solid var(--amarillo)}
+.footer{text-align:center;padding:22px 16px;color:var(--gris-t);font-size:11px;border-top:1px solid var(--gris-b);margin-top:12px}
+.footer span{color:var(--azul);font-weight:600}
+@media(max-width:480px){
+  .family-grid{grid-template-columns:1fr}
+  .rgrid{grid-template-columns:1fr}
+  .rc.wide{grid-column:auto}
+  .ipair{grid-template-columns:1fr;gap:4px}
+  .orsep{padding-top:0}
+  .fgrid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="header-inner">
+    <div>
+      <div class="logo-badge">ACEROS TURIA</div>
+      <div class="logo-sub">Colombia S.A.S.</div>
+    </div>
+    <div class="header-title">Cotizador<br>Galvanizados</div>
+  </div>
+</div>
+
+<div id="s-home" class="screen active">
+  <div class="welcome"><h2>Familias de productos</h2><p>Selecciona la familia para iniciar la cotización</p></div>
+  <div class="family-grid">
+    <div class="fc" onclick="openFamily('pua')"><div class="fi">🌵</div><h3>Alambre de Púas</h3><p>Cal 14.5 y 12.5</p><div class="ab"></div></div>
+    <div class="fc" onclick="openFamily('eslabonada')"><div class="fi">🔗</div><h3>Malla Eslabonada</h3><p>Cal 12, 12.5, 10.5</p><div class="ab"></div></div>
+    <div class="fc" onclick="showScreen('s-gavion')"><div class="fi">🧱</div><h3>Gaviones</h3><p>Tradicional y colchogavión</p><div class="ab"></div></div>
+  </div>
+  <div class="admin-wrap"><button class="admin-btn" onclick="showScreen('s-admin-pw')">⚙ Administrador</button></div>
+  <div class="footer"><span>Aceros Turia de Colombia S.A.S.</span> · Uso interno comercial</div>
+</div>
+
+<div id="s-family" class="screen">
+  <div class="back-bar"><button class="back-btn" onclick="showScreen('s-home')">← Volver</button><div class="stitle" id="family-title"></div></div>
+  <div class="slabel">Referencias disponibles</div>
+  <div id="ref-list"></div>
+</div>
+
+<div id="s-cotiz" class="screen">
+  <div class="back-bar"><button class="back-btn" id="back-family-btn">← Volver</button><div class="stitle" id="cotiz-title"></div></div>
+  <div class="prod-card"><h3 id="cotiz-name"></h3><p id="cotiz-dims"></p></div>
+  <div class="slabel">Ingresa el precio</div>
+  <div class="ipair">
+    <div class="fi-wrap"><label>Precio por kilo</label><input type="number" id="pk-kilo" placeholder="Ej: 6500" oninput="calcDesdeKilo()"/></div>
+    <div class="orsep">o</div>
+    <div class="fi-wrap"><label>Precio por rollo</label><input type="number" id="pk-rollo" placeholder="Ej: 190000" oninput="calcDesdeRollo()"/></div>
+  </div>
+  <div class="divider"></div>
+  <div id="res-simple"></div>
+</div>
+
+<div id="s-gavion" class="screen">
+  <div class="back-bar"><button class="back-btn" onclick="showScreen('s-home')">← Volver</button><div class="stitle">Gaviones</div></div>
+  <div class="slabel">Tipo de producto</div>
+  <div class="seg"><button class="sb active" id="tab-trad" onclick="setTab('trad')">Gavión tradicional</button><button class="sb" id="tab-colcho" onclick="setTab('colcho')">Colchogavión</button></div>
+  <div class="slabel">Calibre</div>
+  <div class="seg"><button class="sb active" id="cal-12" onclick="setCal(12)">Cal 12 — 2.51 mm</button><button class="sb" id="cal-13" onclick="setCal(13)">Cal 13 — 2.26 mm</button></div>
+  <div class="slabel">Dimensiones (metros)</div>
+  <div class="fgrid">
+    <div class="fi-wrap"><label>Ancho</label><input type="number" id="g-ancho" value="2" step="0.5" oninput="calcGavion()"/></div>
+    <div class="fi-wrap"><label>Altura</label><input type="number" id="g-altura" value="1" step="0.5" oninput="calcGavion()"/></div>
+    <div class="fi-wrap"><label>Profundidad</label><input type="number" id="g-prof" value="1" step="0.5" oninput="calcGavion()"/></div>
+    <div class="fi-wrap"><label>Diafragma</label><select id="g-diaf" onchange="calcGavion()"><option value="no">No</option><option value="si">Sí</option></select></div>
+  </div>
+  <div class="slabel">Ingresa el precio</div>
+  <div class="ipair">
+    <div class="fi-wrap"><label>Precio por kilo</label><input type="number" id="g-pk" placeholder="Ej: 9000" oninput="calcGavionDesdeKilo()"/></div>
+    <div class="orsep">o</div>
+    <div class="fi-wrap"><label>Precio por gavión</label><input type="number" id="g-pgavion" placeholder="Ej: 99000" oninput="calcGavionDesdeTotal()"/></div>
+  </div>
+  <div id="gavion-results"></div>
+</div>
+
+<div id="s-admin-pw" class="screen">
+  <div class="back-bar"><button class="back-btn" onclick="showScreen('s-home')">← Volver</button><div class="stitle">Administrador</div></div>
+  <div class="pw-card">
+    <h3>Acceso restringido</h3>
+    <p>Ingresa la contraseña para administrar el catálogo</p>
+    <input type="password" id="pw-input" placeholder="Contraseña" onkeydown="if(event.key==='Enter')checkPw()"/>
+    <button class="btn-primary" onclick="checkPw()">Ingresar</button>
+    <div class="pw-error" id="pw-error"></div>
+  </div>
+</div>
+
+<div id="s-admin" class="screen">
+  <div class="back-bar"><button class="back-btn" onclick="showScreen('s-home')">← Volver</button><div class="stitle">Administrar productos</div></div>
+  <div id="admin-content"></div>
+</div>
+
+<script>
+const ADMIN_PW='turia2025';
+const pesoM2={12:1.35,13:1.10};
+const defaultProducts=[
+  {id:1,familia:'pua',nombre:'Alambre de Púas Cal 14.5 × 200 m',peso:12.1,metros:200,tipo:'pua'},
+  {id:2,familia:'pua',nombre:'Alambre de Púas Cal 14.5 × 350 m',peso:21.2,metros:350,tipo:'pua'},
+  {id:3,familia:'pua',nombre:'Alambre de Púas Cal 14.5 × 400 m',peso:24.8,metros:400,tipo:'pua'},
+  {id:4,familia:'pua',nombre:'Alambre de Púas Cal 14.5 × 500 m',peso:30.25,metros:500,tipo:'pua'},
+  {id:5,familia:'pua',nombre:'Alambre de Púas Cal 12.5 × 350 m',peso:34.3,metros:350,tipo:'pua'},
+  {id:6,familia:'pua',nombre:'Alambre de Púas Cal 12.5 × 400 m',peso:39.2,metros:400,tipo:'pua'},
+  {id:7,familia:'eslabonada',nombre:'Malla Eslabonada Cal 12 1.5×10 m',peso:22.6,m2:15,tipo:'malla'},
+  {id:8,familia:'eslabonada',nombre:'Malla Eslabonada Cal 12 1.8×10 m',peso:27.6,m2:18,tipo:'malla'},
+  {id:9,familia:'eslabonada',nombre:'Malla Eslabonada Cal 12 2.0×10 m',peso:30.8,m2:20,tipo:'malla'},
+  {id:10,familia:'eslabonada',nombre:'Malla Eslabonada Cal 10.5 1.5×10 m',peso:34.5,m2:15,tipo:'malla'},
+  {id:11,familia:'eslabonada',nombre:'Malla Eslabonada Cal 10.5 1.8×10 m',peso:40.3,m2:18,tipo:'malla'},
+  {id:12,familia:'eslabonada',nombre:'Malla Eslabonada Cal 10.5 2.0×10 m',peso:44.6,m2:20,tipo:'malla'},
+  {id:13,familia:'eslabonada',nombre:'Alambre Galvanizado 25 kg',peso:25,tipo:'alambre'},
+];
+let products=JSON.parse(localStorage.getItem('gal_gh_v1')||'null')||defaultProducts;
+let nextId=Math.max(...products.map(p=>p.id))+1;
+let currentFamily=null,currentProduct=null,gavTab='trad',gavCal=12;
+let bkS=false,bkG=false;
+
+function save(){try{localStorage.setItem('gal_gh_v1',JSON.stringify(products))}catch(e){}}
+function fmt(n){return Math.round(n).toLocaleString('es-CO')}
+function fmtD(n){return parseFloat(n.toFixed(2)).toString()}
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo(0,0)}
+
+function renderSimple(pk,pr){
+  const p=currentProduct;
+  let h=`<div class="rmain"><div class="rlbl">Precio por rollo</div><div class="rval">$${fmt(pr)}</div><div class="runt">COP</div></div><div class="rgrid">`;
+  h+=`<div class="rc"><div class="rl">Precio por kilo</div><div class="rv">$${fmt(pk)}</div><div class="ru">COP/kg</div></div>`;
+  if(p.metros)h+=`<div class="rc"><div class="rl">Metro lineal</div><div class="rv">$${fmt(pr/p.metros)}</div><div class="ru">COP/ml</div></div>`;
+  if(p.m2)h+=`<div class="rc ${!p.metros?'wide':''}"><div class="rl">Metro cuadrado</div><div class="rv">$${fmt(pr/p.m2)}</div><div class="ru">COP/m²</div></div>`;
+  h+=`</div>`;
+  document.getElementById('res-simple').innerHTML=h;
+}
+function calcDesdeKilo(){
+  if(bkS)return;
+  const p=currentProduct,pk=parseFloat(document.getElementById('pk-kilo').value)||0;
+  if(!pk){document.getElementById('res-simple').innerHTML='';return;}
+  const pr=pk*p.peso;bkS=true;document.getElementById('pk-rollo').value=Math.round(pr);bkS=false;renderSimple(pk,pr);
+}
+function calcDesdeRollo(){
+  if(bkS)return;
+  const p=currentProduct,pr=parseFloat(document.getElementById('pk-rollo').value)||0;
+  if(!pr){document.getElementById('res-simple').innerHTML='';return;}
+  const pk=pr/p.peso;bkS=true;document.getElementById('pk-kilo').value=Math.round(pk);bkS=false;renderSimple(pk,pr);
+}
+
+function setTab(t){gavTab=t;document.getElementById('tab-trad').classList.toggle('active',t==='trad');document.getElementById('tab-colcho').classList.toggle('active',t==='colcho');calcGavion()}
+function setCal(c){gavCal=c;document.getElementById('cal-12').classList.toggle('active',c===12);document.getElementById('cal-13').classList.toggle('active',c===13);calcGavion()}
+function getDims(){
+  const a=parseFloat(document.getElementById('g-ancho').value)||0,al=parseFloat(document.getElementById('g-altura').value)||0,pr=parseFloat(document.getElementById('g-prof').value)||0,d=document.getElementById('g-diaf').value==='si';
+  if(!a||!al||!pr)return null;
+  let m2C,m2T,m2D=0,lC,lT;
+  if(gavTab==='trad'){m2C=4*a*al;lC=`4×${a}m×${al}m`;m2T=2*pr*al;lT=`2×${pr}m×${al}m`;if(d)m2D=pr*al;}
+  else{m2C=(al+pr)*2*a;lC=`(${al}+${pr})×2×${a}`;m2T=a*pr;lT=`${a}m×${pr}m`;if(d)m2D=a*pr;}
+  return{m2C,m2T,m2D,m2Total:m2C+m2T+m2D,lC,lT};
+}
+function renderGavion(pk,pg,d){
+  const pm2=pesoM2[gavCal],peso=d.m2Total*pm2,pm2p=pg/d.m2Total;
+  document.getElementById('gavion-results').innerHTML=`
+  <div class="rmain"><div class="rlbl">Precio por gavión</div><div class="rval">$${fmt(pg)}</div><div class="runt">COP</div></div>
+  <div class="rgrid">
+    <div class="rc"><div class="rl">Precio por kilo</div><div class="rv">$${fmt(pk)}</div><div class="ru">COP/kg</div></div>
+    <div class="rc"><div class="rl">Peso gavión</div><div class="rv">${fmtD(peso)} kg</div><div class="ru">Cal ${gavCal}·${pm2}kg/m²</div></div>
+    <div class="rc wide"><div class="rl">Precio por m²</div><div class="rv">$${fmt(pm2p)}</div><div class="ru">COP/m²</div></div>
+  </div>
+  <div class="bdown"><div class="btitle">Desglose de m²</div>
+    <div class="brow"><span>Cuerpo (${d.lC})</span><span>${fmtD(d.m2C)} m²</span></div>
+    <div class="brow"><span>Tapas (${d.lT})</span><span>${fmtD(d.m2T)} m²</span></div>
+    ${d.m2D>0?`<div class="brow"><span>Diafragma</span><span>${fmtD(d.m2D)} m²</span></div>`:''}
+    <div class="brow"><span>Total m² · Peso ${fmtD(peso)} kg</span><span>${fmtD(d.m2Total)} m²</span></div>
+  </div>`;
+}
+function soloDesglose(){
+  const d=getDims();if(!d)return;
+  const pm2=pesoM2[gavCal],peso=d.m2Total*pm2;
+  document.getElementById('gavion-results').innerHTML=`<div class="bdown"><div class="btitle">Desglose de m²</div>
+    <div class="brow"><span>Cuerpo (${d.lC})</span><span>${fmtD(d.m2C)} m²</span></div>
+    <div class="brow"><span>Tapas (${d.lT})</span><span>${fmtD(d.m2T)} m²</span></div>
+    ${d.m2D>0?`<div class="brow"><span>Diafragma</span><span>${fmtD(d.m2D)} m²</span></div>`:''}
+    <div class="brow"><span>Total m² · Peso ${fmtD(peso)} kg</span><span>${fmtD(d.m2Total)} m²</span></div>
+  </div>`;
+}
+function calcGavion(){
+  const d=getDims();if(!d){document.getElementById('gavion-results').innerHTML='';return;}
+  const pk=parseFloat(document.getElementById('g-pk').value)||0,pg=parseFloat(document.getElementById('g-pgavion').value)||0;
+  if(!pk&&!pg){soloDesglose();return;}
+  if(pk)calcGavionDesdeKilo();else calcGavionDesdeTotal();
+}
+function calcGavionDesdeKilo(){
+  if(bkG)return;const d=getDims();if(!d)return;
+  const pk=parseFloat(document.getElementById('g-pk').value)||0;if(!pk){soloDesglose();return;}
+  const peso=d.m2Total*pesoM2[gavCal],pg=pk*peso;
+  bkG=true;document.getElementById('g-pgavion').value=Math.round(pg);bkG=false;renderGavion(pk,pg,d);
+}
+function calcGavionDesdeTotal(){
+  if(bkG)return;const d=getDims();if(!d)return;
+  const pg=parseFloat(document.getElementById('g-pgavion').value)||0;if(!pg){soloDesglose();return;}
+  const peso=d.m2Total*pesoM2[gavCal],pk=pg/peso;
+  bkG=true;document.getElementById('g-pk').value=Math.round(pk);bkG=false;renderGavion(pk,pg,d);
+}
+
+function openFamily(fam){
+  currentFamily=fam;
+  document.getElementById('family-title').textContent={pua:'Alambre de Púas',eslabonada:'Malla Eslabonada'}[fam];
+  let h='';
+  products.filter(p=>p.familia===fam).forEach(p=>{
+    let s=[p.peso+' kg'];if(p.metros)s.push(p.metros+' m');if(p.m2)s.push(p.m2+' m²');
+    h+=`<div class="ref-item" onclick="openCotiz(${p.id})"><div><div class="rn">${p.nombre}</div><div class="rs">${s.join(' · ')}</div></div><span class="rarrow">›</span></div>`;
+  });
+  document.getElementById('ref-list').innerHTML=h;showScreen('s-family');
+}
+function openCotiz(id){
+  currentProduct=products.find(p=>p.id===id);const p=currentProduct;
+  document.getElementById('cotiz-title').textContent={pua:'Alambre de Púas',eslabonada:'Malla Eslabonada'}[p.familia]||p.familia;
+  document.getElementById('cotiz-name').textContent=p.nombre;
+  let s=[p.peso+' kg'];if(p.metros)s.push(p.metros+' m lineales');if(p.m2)s.push(p.m2+' m²');
+  document.getElementById('cotiz-dims').textContent=s.join(' · ');
+  document.getElementById('pk-kilo').value='';document.getElementById('pk-rollo').value='';document.getElementById('res-simple').innerHTML='';
+  document.getElementById('back-family-btn').onclick=()=>openFamily(currentFamily);showScreen('s-cotiz');
+}
+
+function checkPw(){
+  const v=document.getElementById('pw-input').value;
+  if(v===ADMIN_PW){document.getElementById('pw-input').value='';document.getElementById('pw-error').textContent='';renderAdmin();showScreen('s-admin');}
+  else document.getElementById('pw-error').textContent='Contraseña incorrecta';
+}
+function renderAdmin(){
+  let h='';
+  [{k:'pua',n:'Alambre de Púas'},{k:'eslabonada',n:'Malla Eslabonada'}].forEach(({k,n})=>{
+    h+=`<div class="fsec"><div class="fsec-title">${n}</div>`;
+    products.filter(p=>p.familia===k).forEach(p=>{
+      let s=[p.peso+' kg'];if(p.metros)s.push(p.metros+' ml');if(p.m2)s.push(p.m2+' m²');
+      h+=`<div class="prow" id="row-${p.id}"><div style="flex:1"><div class="prow-name">${p.nombre}</div><div class="prow-sub">${s.join(' · ')}</div></div>
+      <div class="prow-acts"><button class="btn-edit" onclick="showEditForm(${p.id})">Editar</button><button class="btn-del" onclick="delProd(${p.id})">Eliminar</button></div></div>
+      <div id="edit-${p.id}" style="display:none"></div>`;
+    });
+    h+=`<button class="add-btn" onclick="showAddForm('${k}')">+ Agregar referencia</button><div id="af-${k}" style="display:none"></div></div>`;
+  });
+  h+=`<div class="fsec"><div class="fsec-title">Gaviones</div><div class="anote">Las dimensiones y calibre de gaviones se ingresan directamente en el cotizador. No requiere catálogo fijo.</div></div>`;
+  document.getElementById('admin-content').innerHTML=h;
+}
+function showEditForm(id){
+  const p=products.find(x=>x.id===id),el=document.getElementById('edit-'+id),open=el.style.display==='block';
+  document.querySelectorAll('[id^="edit-"],[id^="af-"]').forEach(e=>e.style.display='none');
+  if(open)return;el.style.display='block';
+  el.innerHTML=`<div class="eform"><h4>Editar referencia</h4>
+  <div class="fg full"><label>Nombre</label><input id="ef-n-${id}" value="${p.nombre}"/></div>
+  <div class="fg"><div><label>Peso (kg)</label><input id="ef-p-${id}" type="number" value="${p.peso}"/></div>
+  <div><label>Tipo</label><select id="ef-t-${id}"><option value="malla" ${p.tipo==='malla'?'selected':''}>Malla</option><option value="pua" ${p.tipo==='pua'?'selected':''}>Púa</option><option value="alambre" ${p.tipo==='alambre'?'selected':''}>Alambre</option></select></div></div>
+  <div class="fg"><div><label>Metros lineales</label><input id="ef-ml-${id}" type="number" value="${p.metros||''}"/></div><div><label>m² por rollo</label><input id="ef-m2-${id}" type="number" value="${p.m2||''}"/></div></div>
+  <div class="fa"><button class="btn-save" onclick="saveEdit(${id})">Guardar</button><button class="btn-cancel" onclick="document.getElementById('edit-${id}').style.display='none'">Cancelar</button></div></div>`;
+}
+function saveEdit(id){
+  const p=products.find(x=>x.id===id);
+  p.nombre=document.getElementById('ef-n-'+id).value.trim()||p.nombre;
+  p.peso=parseFloat(document.getElementById('ef-p-'+id).value)||p.peso;
+  p.tipo=document.getElementById('ef-t-'+id).value;
+  const ml=parseFloat(document.getElementById('ef-ml-'+id).value)||null,m2=parseFloat(document.getElementById('ef-m2-'+id).value)||null;
+  if(ml)p.metros=ml;else delete p.metros;if(m2)p.m2=m2;else delete p.m2;
+  save();renderAdmin();
+}
+function delProd(id){
+  if(!confirm('¿Eliminar esta referencia?'))return;
+  products=products.filter(p=>p.id!==id);save();renderAdmin();
+}
+function showAddForm(fam){
+  document.querySelectorAll('[id^="edit-"],[id^="af-"]').forEach(e=>e.style.display='none');
+  const el=document.getElementById('af-'+fam);el.style.display='block';
+  el.innerHTML=`<div class="eform"><h4>Nueva referencia</h4>
+  <div class="fg full"><label>Nombre</label><input id="nf-n" placeholder="Ej: Malla Eslabonada Cal 12 2.0×10 m"/></div>
+  <div class="fg"><div><label>Peso (kg)</label><input id="nf-p" type="number" placeholder="30.8"/></div><div><label>Tipo</label><select id="nf-t"><option value="malla">Malla</option><option value="pua">Púa</option><option value="alambre">Alambre</option></select></div></div>
+  <div class="fg"><div><label>Metros lineales</label><input id="nf-ml" type="number" placeholder="350"/></div><div><label>m² por rollo</label><input id="nf-m2" type="number" placeholder="20"/></div></div>
+  <div class="fa"><button class="btn-save" onclick="saveNewProd('${fam}')">Guardar</button><button class="btn-cancel" onclick="document.getElementById('af-${fam}').style.display='none'">Cancelar</button></div></div>`;
+}
+function saveNewProd(fam){
+  const nombre=document.getElementById('nf-n').value.trim(),peso=parseFloat(document.getElementById('nf-p').value),tipo=document.getElementById('nf-t').value;
+  const metros=parseFloat(document.getElementById('nf-ml').value)||null,m2=parseFloat(document.getElementById('nf-m2').value)||null;
+  if(!nombre||!peso){alert('Nombre y peso son obligatorios');return;}
+  const prod={id:nextId++,familia:fam,nombre,peso,tipo};
+  if(metros)prod.metros=metros;if(m2)prod.m2=m2;
+  products.push(prod);save();renderAdmin();
+}
+setTab('trad');calcGavion();
+</script>
+</body>
+</html>
