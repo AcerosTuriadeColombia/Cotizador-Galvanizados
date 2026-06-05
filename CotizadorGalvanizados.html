@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Cotizador Galvanizados — Aceros Turia</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{
   --azul:#0D2A5C;--azul-m:#1a3d7c;--azul-c:#1e4fa3;
@@ -77,6 +78,15 @@ body{font-family:'Barlow',sans-serif;background:var(--gris-bg);color:var(--texto
 .brow:last-child{border-bottom:none;font-weight:700;color:var(--azul);font-size:13px;padding-top:7px}
 .brow span:last-child{color:var(--texto);font-weight:600}
 .brow:last-child span:last-child{color:var(--azul)}
+/* LOADING */
+.loading{text-align:center;padding:40px 20px;color:var(--gris-t)}
+.loading-spinner{width:36px;height:36px;border:3px solid var(--gris-b);border-top-color:var(--azul);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 12px}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--azul);color:var(--blanco);padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;box-shadow:0 4px 16px rgba(0,0,0,0.2);z-index:999;opacity:0;transition:opacity 0.3s;pointer-events:none;border-bottom:3px solid var(--amarillo)}
+.toast.show{opacity:1}
+.toast.error{background:#c0392b;border-bottom-color:#e74c3c}
+/* ADMIN */
 .pw-card{background:var(--blanco);border:1.5px solid var(--gris-b);border-radius:var(--rl);padding:28px 24px;text-align:center;max-width:360px;margin:0 auto;box-shadow:var(--sombra)}
 .pw-card h3{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;color:var(--azul);margin-bottom:6px}
 .pw-card p{font-size:13px;color:var(--gris-t);margin-bottom:16px}
@@ -124,6 +134,9 @@ body{font-family:'Barlow',sans-serif;background:var(--gris-bg);color:var(--texto
 </style>
 </head>
 <body>
+
+<div class="toast" id="toast"></div>
+
 <div class="header">
   <div class="header-inner">
     <div>
@@ -134,23 +147,26 @@ body{font-family:'Barlow',sans-serif;background:var(--gris-bg);color:var(--texto
   </div>
 </div>
 
+<!-- HOME -->
 <div id="s-home" class="screen active">
   <div class="welcome"><h2>Familias de productos</h2><p>Selecciona la familia para iniciar la cotización</p></div>
   <div class="family-grid">
-    <div class="fc" onclick="openFamily('pua')"><div class="fi">🌵</div><h3>Alambre de Púas</h3><p>Cal 14.5 y 12.5</p><div class="ab"></div></div>
-    <div class="fc" onclick="openFamily('eslabonada')"><div class="fi">🔗</div><h3>Malla Eslabonada</h3><p>Cal 12, 12.5, 10.5</p><div class="ab"></div></div>
+    <div class="fc" onclick="openFamily('pua')"><div class="fi">🌵</div><h3>Alambre de Púas</h3><p>Cal 12.5, 14.5 y 16.5</p><div class="ab"></div></div>
+    <div class="fc" onclick="openFamily('eslabonada')"><div class="fi">🔗</div><h3>Malla Eslabonada</h3><p>Cal 12 y 10.5</p><div class="ab"></div></div>
     <div class="fc" onclick="showScreen('s-gavion')"><div class="fi">🧱</div><h3>Gaviones</h3><p>Tradicional y colchogavión</p><div class="ab"></div></div>
   </div>
   <div class="admin-wrap"><button class="admin-btn" onclick="showScreen('s-admin-pw')">⚙ Administrador</button></div>
   <div class="footer"><span>Aceros Turia de Colombia S.A.S.</span> · Uso interno comercial</div>
 </div>
 
+<!-- FAMILY LIST -->
 <div id="s-family" class="screen">
   <div class="back-bar"><button class="back-btn" onclick="showScreen('s-home')">← Volver</button><div class="stitle" id="family-title"></div></div>
   <div class="slabel">Referencias disponibles</div>
   <div id="ref-list"></div>
 </div>
 
+<!-- COTIZADOR SIMPLE -->
 <div id="s-cotiz" class="screen">
   <div class="back-bar"><button class="back-btn" id="back-family-btn">← Volver</button><div class="stitle" id="cotiz-title"></div></div>
   <div class="prod-card"><h3 id="cotiz-name"></h3><p id="cotiz-dims"></p></div>
@@ -164,6 +180,7 @@ body{font-family:'Barlow',sans-serif;background:var(--gris-bg);color:var(--texto
   <div id="res-simple"></div>
 </div>
 
+<!-- GAVIONES -->
 <div id="s-gavion" class="screen">
   <div class="back-bar"><button class="back-btn" onclick="showScreen('s-home')">← Volver</button><div class="stitle">Gaviones</div></div>
   <div class="slabel">Tipo de producto</div>
@@ -186,6 +203,7 @@ body{font-family:'Barlow',sans-serif;background:var(--gris-bg);color:var(--texto
   <div id="gavion-results"></div>
 </div>
 
+<!-- ADMIN PW -->
 <div id="s-admin-pw" class="screen">
   <div class="back-bar"><button class="back-btn" onclick="showScreen('s-home')">← Volver</button><div class="stitle">Administrador</div></div>
   <div class="pw-card">
@@ -197,39 +215,51 @@ body{font-family:'Barlow',sans-serif;background:var(--gris-bg);color:var(--texto
   </div>
 </div>
 
+<!-- ADMIN PANEL -->
 <div id="s-admin" class="screen">
   <div class="back-bar"><button class="back-btn" onclick="showScreen('s-home')">← Volver</button><div class="stitle">Administrar productos</div></div>
   <div id="admin-content"></div>
 </div>
 
 <script>
+// ---- SUPABASE ----
+const SUPA_URL='https://ekxtdraihnmyxbsrvevl.supabase.co';
+const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVreHRkcmFpaG5teXhic3J2ZXZsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2NzczOTgsImV4cCI6MjA5NjI1MzM5OH0.qRmjOn21BoyFGXWKvKWg5xodRp7PN6gAI4T0-gpsaFc';
+const sb=supabase.createClient(SUPA_URL,SUPA_KEY);
+
 const ADMIN_PW='turia2025';
 const pesoM2={12:1.35,13:1.10};
-const defaultProducts=[
-  {id:1,familia:'pua',nombre:'Alambre de Púas Cal 14.5 × 200 m',peso:12.1,metros:200,tipo:'pua'},
-  {id:2,familia:'pua',nombre:'Alambre de Púas Cal 14.5 × 350 m',peso:21.2,metros:350,tipo:'pua'},
-  {id:3,familia:'pua',nombre:'Alambre de Púas Cal 14.5 × 400 m',peso:24.8,metros:400,tipo:'pua'},
-  {id:4,familia:'pua',nombre:'Alambre de Púas Cal 14.5 × 500 m',peso:30.25,metros:500,tipo:'pua'},
-  {id:5,familia:'pua',nombre:'Alambre de Púas Cal 12.5 × 350 m',peso:34.3,metros:350,tipo:'pua'},
-  {id:6,familia:'pua',nombre:'Alambre de Púas Cal 12.5 × 400 m',peso:39.2,metros:400,tipo:'pua'},
-  {id:7,familia:'eslabonada',nombre:'Malla Eslabonada Cal 12 1.5×10 m',peso:22.6,m2:15,tipo:'malla'},
-  {id:8,familia:'eslabonada',nombre:'Malla Eslabonada Cal 12 1.8×10 m',peso:27.6,m2:18,tipo:'malla'},
-  {id:9,familia:'eslabonada',nombre:'Malla Eslabonada Cal 12 2.0×10 m',peso:30.8,m2:20,tipo:'malla'},
-  {id:10,familia:'eslabonada',nombre:'Malla Eslabonada Cal 10.5 1.5×10 m',peso:34.5,m2:15,tipo:'malla'},
-  {id:11,familia:'eslabonada',nombre:'Malla Eslabonada Cal 10.5 1.8×10 m',peso:40.3,m2:18,tipo:'malla'},
-  {id:12,familia:'eslabonada',nombre:'Malla Eslabonada Cal 10.5 2.0×10 m',peso:44.6,m2:20,tipo:'malla'},
-  {id:13,familia:'eslabonada',nombre:'Alambre Galvanizado 25 kg',peso:25,tipo:'alambre'},
-];
-let products=JSON.parse(localStorage.getItem('gal_gh_v1')||'null')||defaultProducts;
-let nextId=Math.max(...products.map(p=>p.id))+1;
+let products=[];
 let currentFamily=null,currentProduct=null,gavTab='trad',gavCal=12;
 let bkS=false,bkG=false;
 
-function save(){try{localStorage.setItem('gal_gh_v1',JSON.stringify(products))}catch(e){}}
+// ---- TOAST ----
+function toast(msg,type='ok'){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='toast'+(type==='error'?' error':'');
+  t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+// ---- UTILS ----
 function fmt(n){return Math.round(n).toLocaleString('es-CO')}
 function fmtD(n){return parseFloat(n.toFixed(2)).toString()}
-function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo(0,0)}
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+function showLoading(containerId){
+  document.getElementById(containerId).innerHTML=`<div class="loading"><div class="loading-spinner"></div><p>Cargando...</p></div>`;
+}
 
+// ---- CARGAR PRODUCTOS DESDE SUPABASE ----
+async function loadProducts(){
+  const{data,error}=await sb.from('galvanizados_productos').select('*').eq('activo',true).order('nombre');
+  if(error){toast('Error cargando productos: '+error.message,'error');return[];}
+  return data||[];
+}
+
+// ---- SIMPLE COTIZADOR (malla/pua) ----
 function renderSimple(pk,pr){
   const p=currentProduct;
   let h=`<div class="rmain"><div class="rlbl">Precio por rollo</div><div class="rval">$${fmt(pr)}</div><div class="runt">COP</div></div><div class="rgrid">`;
@@ -252,6 +282,7 @@ function calcDesdeRollo(){
   const pk=pr/p.peso;bkS=true;document.getElementById('pk-kilo').value=Math.round(pk);bkS=false;renderSimple(pk,pr);
 }
 
+// ---- GAVIONES ----
 function setTab(t){gavTab=t;document.getElementById('tab-trad').classList.toggle('active',t==='trad');document.getElementById('tab-colcho').classList.toggle('active',t==='colcho');calcGavion()}
 function setCal(c){gavCal=c;document.getElementById('cal-12').classList.toggle('active',c===12);document.getElementById('cal-13').classList.toggle('active',c===13);calcGavion()}
 function getDims(){
@@ -307,39 +338,67 @@ function calcGavionDesdeTotal(){
   bkG=true;document.getElementById('g-pk').value=Math.round(pk);bkG=false;renderGavion(pk,pg,d);
 }
 
-function openFamily(fam){
+// ---- FAMILY / COTIZ ----
+async function openFamily(fam){
   currentFamily=fam;
-  document.getElementById('family-title').textContent={pua:'Alambre de Púas',eslabonada:'Malla Eslabonada'}[fam];
+  const names={pua:'Alambre de Púas',eslabonada:'Malla Eslabonada'};
+  document.getElementById('family-title').textContent=names[fam];
+  showLoading('ref-list');
+  showScreen('s-family');
+  const{data,error}=await sb.from('galvanizados_productos').select('*').eq('familia',fam).eq('activo',true).order('nombre');
+  if(error){document.getElementById('ref-list').innerHTML='<p style="color:#c0392b;padding:12px">Error cargando referencias</p>';return;}
   let h='';
-  products.filter(p=>p.familia===fam).forEach(p=>{
-    let s=[p.peso+' kg'];if(p.metros)s.push(p.metros+' m');if(p.m2)s.push(p.m2+' m²');
+  (data||[]).forEach(p=>{
+    let s=[p.peso+' kg'];
+    if(p.metros)s.push(p.metros+' m lineales');
+    if(p.m2)s.push(p.m2+' m²');
     h+=`<div class="ref-item" onclick="openCotiz(${p.id})"><div><div class="rn">${p.nombre}</div><div class="rs">${s.join(' · ')}</div></div><span class="rarrow">›</span></div>`;
   });
-  document.getElementById('ref-list').innerHTML=h;showScreen('s-family');
-}
-function openCotiz(id){
-  currentProduct=products.find(p=>p.id===id);const p=currentProduct;
-  document.getElementById('cotiz-title').textContent={pua:'Alambre de Púas',eslabonada:'Malla Eslabonada'}[p.familia]||p.familia;
-  document.getElementById('cotiz-name').textContent=p.nombre;
-  let s=[p.peso+' kg'];if(p.metros)s.push(p.metros+' m lineales');if(p.m2)s.push(p.m2+' m²');
-  document.getElementById('cotiz-dims').textContent=s.join(' · ');
-  document.getElementById('pk-kilo').value='';document.getElementById('pk-rollo').value='';document.getElementById('res-simple').innerHTML='';
-  document.getElementById('back-family-btn').onclick=()=>openFamily(currentFamily);showScreen('s-cotiz');
+  document.getElementById('ref-list').innerHTML=h||'<p style="color:var(--gris-t);padding:12px">No hay referencias disponibles</p>';
 }
 
+async function openCotiz(id){
+  const{data,error}=await sb.from('galvanizados_productos').select('*').eq('id',id).single();
+  if(error||!data){toast('Error cargando producto','error');return;}
+  currentProduct=data;const p=data;
+  const names={pua:'Alambre de Púas',eslabonada:'Malla Eslabonada'};
+  document.getElementById('cotiz-title').textContent=names[p.familia]||p.familia;
+  document.getElementById('cotiz-name').textContent=p.nombre;
+  let s=[p.peso+' kg'];
+  if(p.metros)s.push(p.metros+' m lineales');
+  if(p.m2)s.push(p.m2+' m²');
+  document.getElementById('cotiz-dims').textContent=s.join(' · ');
+  document.getElementById('pk-kilo').value='';
+  document.getElementById('pk-rollo').value='';
+  document.getElementById('res-simple').innerHTML='';
+  document.getElementById('back-family-btn').onclick=()=>openFamily(currentFamily);
+  showScreen('s-cotiz');
+}
+
+// ---- ADMIN ----
 function checkPw(){
   const v=document.getElementById('pw-input').value;
   if(v===ADMIN_PW){document.getElementById('pw-input').value='';document.getElementById('pw-error').textContent='';renderAdmin();showScreen('s-admin');}
   else document.getElementById('pw-error').textContent='Contraseña incorrecta';
 }
-function renderAdmin(){
+
+async function renderAdmin(){
+  showLoading('admin-content');
+  const{data,error}=await sb.from('galvanizados_productos').select('*').eq('activo',true).order('familia').order('nombre');
+  if(error){document.getElementById('admin-content').innerHTML='<p style="color:#c0392b">Error: '+error.message+'</p>';return;}
   let h='';
   [{k:'pua',n:'Alambre de Púas'},{k:'eslabonada',n:'Malla Eslabonada'}].forEach(({k,n})=>{
+    const prods=(data||[]).filter(p=>p.familia===k);
     h+=`<div class="fsec"><div class="fsec-title">${n}</div>`;
-    products.filter(p=>p.familia===k).forEach(p=>{
+    prods.forEach(p=>{
       let s=[p.peso+' kg'];if(p.metros)s.push(p.metros+' ml');if(p.m2)s.push(p.m2+' m²');
-      h+=`<div class="prow" id="row-${p.id}"><div style="flex:1"><div class="prow-name">${p.nombre}</div><div class="prow-sub">${s.join(' · ')}</div></div>
-      <div class="prow-acts"><button class="btn-edit" onclick="showEditForm(${p.id})">Editar</button><button class="btn-del" onclick="delProd(${p.id})">Eliminar</button></div></div>
+      h+=`<div class="prow" id="row-${p.id}">
+        <div style="flex:1"><div class="prow-name">${p.nombre}</div><div class="prow-sub">${s.join(' · ')}</div></div>
+        <div class="prow-acts">
+          <button class="btn-edit" onclick="showEditForm(${p.id},'${p.nombre.replace(/'/g,"\\'")}',${p.peso},${p.metros||'null'},${p.m2||'null'},'${p.tipo}')">Editar</button>
+          <button class="btn-del" onclick="delProd(${p.id})">Eliminar</button>
+        </div>
+      </div>
       <div id="edit-${p.id}" style="display:none"></div>`;
     });
     h+=`<button class="add-btn" onclick="showAddForm('${k}')">+ Agregar referencia</button><div id="af-${k}" style="display:none"></div></div>`;
@@ -347,48 +406,83 @@ function renderAdmin(){
   h+=`<div class="fsec"><div class="fsec-title">Gaviones</div><div class="anote">Las dimensiones y calibre de gaviones se ingresan directamente en el cotizador. No requiere catálogo fijo.</div></div>`;
   document.getElementById('admin-content').innerHTML=h;
 }
-function showEditForm(id){
-  const p=products.find(x=>x.id===id),el=document.getElementById('edit-'+id),open=el.style.display==='block';
+
+function showEditForm(id,nombre,peso,metros,m2,tipo){
+  const el=document.getElementById('edit-'+id),open=el.style.display==='block';
   document.querySelectorAll('[id^="edit-"],[id^="af-"]').forEach(e=>e.style.display='none');
   if(open)return;el.style.display='block';
   el.innerHTML=`<div class="eform"><h4>Editar referencia</h4>
-  <div class="fg full"><label>Nombre</label><input id="ef-n-${id}" value="${p.nombre}"/></div>
-  <div class="fg"><div><label>Peso (kg)</label><input id="ef-p-${id}" type="number" value="${p.peso}"/></div>
-  <div><label>Tipo</label><select id="ef-t-${id}"><option value="malla" ${p.tipo==='malla'?'selected':''}>Malla</option><option value="pua" ${p.tipo==='pua'?'selected':''}>Púa</option><option value="alambre" ${p.tipo==='alambre'?'selected':''}>Alambre</option></select></div></div>
-  <div class="fg"><div><label>Metros lineales</label><input id="ef-ml-${id}" type="number" value="${p.metros||''}"/></div><div><label>m² por rollo</label><input id="ef-m2-${id}" type="number" value="${p.m2||''}"/></div></div>
-  <div class="fa"><button class="btn-save" onclick="saveEdit(${id})">Guardar</button><button class="btn-cancel" onclick="document.getElementById('edit-${id}').style.display='none'">Cancelar</button></div></div>`;
+  <div class="fg full"><label>Nombre</label><input id="ef-n-${id}" value="${nombre}"/></div>
+  <div class="fg">
+    <div><label>Peso (kg)</label><input id="ef-p-${id}" type="number" value="${peso}"/></div>
+    <div><label>Tipo</label><select id="ef-t-${id}">
+      <option value="malla" ${tipo==='malla'?'selected':''}>Malla</option>
+      <option value="pua" ${tipo==='pua'?'selected':''}>Púa</option>
+      <option value="alambre" ${tipo==='alambre'?'selected':''}>Alambre</option>
+    </select></div>
+  </div>
+  <div class="fg">
+    <div><label>Metros lineales</label><input id="ef-ml-${id}" type="number" value="${metros!=='null'?metros:''}"/></div>
+    <div><label>m² por rollo</label><input id="ef-m2-${id}" type="number" value="${m2!=='null'?m2:''}"/></div>
+  </div>
+  <div class="fa">
+    <button class="btn-save" onclick="saveEdit(${id})">Guardar</button>
+    <button class="btn-cancel" onclick="document.getElementById('edit-${id}').style.display='none'">Cancelar</button>
+  </div></div>`;
 }
-function saveEdit(id){
-  const p=products.find(x=>x.id===id);
-  p.nombre=document.getElementById('ef-n-'+id).value.trim()||p.nombre;
-  p.peso=parseFloat(document.getElementById('ef-p-'+id).value)||p.peso;
-  p.tipo=document.getElementById('ef-t-'+id).value;
-  const ml=parseFloat(document.getElementById('ef-ml-'+id).value)||null,m2=parseFloat(document.getElementById('ef-m2-'+id).value)||null;
-  if(ml)p.metros=ml;else delete p.metros;if(m2)p.m2=m2;else delete p.m2;
-  save();renderAdmin();
+
+async function saveEdit(id){
+  const nombre=document.getElementById('ef-n-'+id).value.trim();
+  const peso=parseFloat(document.getElementById('ef-p-'+id).value);
+  const tipo=document.getElementById('ef-t-'+id).value;
+  const metros=parseFloat(document.getElementById('ef-ml-'+id).value)||null;
+  const m2=parseFloat(document.getElementById('ef-m2-'+id).value)||null;
+  if(!nombre||!peso){toast('Nombre y peso son obligatorios','error');return;}
+  const{error}=await sb.from('galvanizados_productos').update({nombre,peso,tipo,metros,m2}).eq('id',id);
+  if(error){toast('Error al guardar: '+error.message,'error');return;}
+  toast('✓ Referencia actualizada');renderAdmin();
 }
-function delProd(id){
+
+async function delProd(id){
   if(!confirm('¿Eliminar esta referencia?'))return;
-  products=products.filter(p=>p.id!==id);save();renderAdmin();
+  const{error}=await sb.from('galvanizados_productos').update({activo:false}).eq('id',id);
+  if(error){toast('Error al eliminar: '+error.message,'error');return;}
+  toast('✓ Referencia eliminada');renderAdmin();
 }
+
 function showAddForm(fam){
   document.querySelectorAll('[id^="edit-"],[id^="af-"]').forEach(e=>e.style.display='none');
   const el=document.getElementById('af-'+fam);el.style.display='block';
   el.innerHTML=`<div class="eform"><h4>Nueva referencia</h4>
   <div class="fg full"><label>Nombre</label><input id="nf-n" placeholder="Ej: Malla Eslabonada Cal 12 2.0×10 m"/></div>
-  <div class="fg"><div><label>Peso (kg)</label><input id="nf-p" type="number" placeholder="30.8"/></div><div><label>Tipo</label><select id="nf-t"><option value="malla">Malla</option><option value="pua">Púa</option><option value="alambre">Alambre</option></select></div></div>
-  <div class="fg"><div><label>Metros lineales</label><input id="nf-ml" type="number" placeholder="350"/></div><div><label>m² por rollo</label><input id="nf-m2" type="number" placeholder="20"/></div></div>
-  <div class="fa"><button class="btn-save" onclick="saveNewProd('${fam}')">Guardar</button><button class="btn-cancel" onclick="document.getElementById('af-${fam}').style.display='none'">Cancelar</button></div></div>`;
+  <div class="fg">
+    <div><label>Peso (kg)</label><input id="nf-p" type="number" placeholder="30.8"/></div>
+    <div><label>Tipo</label><select id="nf-t"><option value="malla">Malla</option><option value="pua">Púa</option><option value="alambre">Alambre</option></select></div>
+  </div>
+  <div class="fg">
+    <div><label>Metros lineales</label><input id="nf-ml" type="number" placeholder="350"/></div>
+    <div><label>m² por rollo</label><input id="nf-m2" type="number" placeholder="20"/></div>
+  </div>
+  <div class="fa">
+    <button class="btn-save" onclick="saveNewProd('${fam}')">Guardar</button>
+    <button class="btn-cancel" onclick="document.getElementById('af-${fam}').style.display='none'">Cancelar</button>
+  </div></div>`;
 }
-function saveNewProd(fam){
-  const nombre=document.getElementById('nf-n').value.trim(),peso=parseFloat(document.getElementById('nf-p').value),tipo=document.getElementById('nf-t').value;
-  const metros=parseFloat(document.getElementById('nf-ml').value)||null,m2=parseFloat(document.getElementById('nf-m2').value)||null;
-  if(!nombre||!peso){alert('Nombre y peso son obligatorios');return;}
-  const prod={id:nextId++,familia:fam,nombre,peso,tipo};
-  if(metros)prod.metros=metros;if(m2)prod.m2=m2;
-  products.push(prod);save();renderAdmin();
+
+async function saveNewProd(fam){
+  const nombre=document.getElementById('nf-n').value.trim();
+  const peso=parseFloat(document.getElementById('nf-p').value);
+  const tipo=document.getElementById('nf-t').value;
+  const metros=parseFloat(document.getElementById('nf-ml').value)||null;
+  const m2=parseFloat(document.getElementById('nf-m2').value)||null;
+  if(!nombre||!peso){toast('Nombre y peso son obligatorios','error');return;}
+  const{error}=await sb.from('galvanizados_productos').insert({familia:fam,nombre,peso,tipo,metros,m2,activo:true});
+  if(error){toast('Error al guardar: '+error.message,'error');return;}
+  toast('✓ Referencia agregada');renderAdmin();
 }
-setTab('trad');calcGavion();
+
+setTab('trad');
+calcGavion();
 </script>
 </body>
 </html>
